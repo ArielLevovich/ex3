@@ -119,7 +119,11 @@ int main() {
                 break;
             case 9:                
                 scanf(" %d", &index);
-                StrList_removeAt(strList, index);                
+                StrList_removeAt(strList, index);
+                if (StrList_size(strList) == 0) {
+                    StrList_free(strList);
+                    strList = NULL;
+                }                 
                 break; 
             case 10:
                 StrList_reverse(strList);     

@@ -36,13 +36,12 @@ void freeTheWholeList(StrList* strList) {
     }
 }
 
-void removeNode(StrList** prevNode, StrList** currNode) {
+void removeNode(StrList** prevNode, StrList** currNode, int size) {
     StrList* prev = *prevNode;
     StrList* strList = *currNode;
 
     if (prev != NULL) {
         prev->next = strList->next;
-        int size = StrList_size(strList);
         if (size == 1) {
             freeNodeData(strList); // instead of free memory of the last one.            
         } else {                   
@@ -50,8 +49,7 @@ void removeNode(StrList** prevNode, StrList** currNode) {
         }
         *currNode = prev; // strList = prev;
     } else {
-        // we should remove the first element.
-        int size = StrList_size(strList);
+        // we should remove the first element.        
         if (size == 1) {
             freeNodeData(strList); // instead of free memory of the last one.            
         } else {
@@ -153,9 +151,15 @@ void StrList_insertAt(StrList* strList,
         return;
     }
     
+    // special case: the very first insertion.
+    if (size == 0 && strList != NULL) {
+        strList->data = strdup(data);
+        return;
+    }
+
     int count = 0;
     StrList* prev = NULL;
-
+    
     while (strList != NULL) {
         if (index == 0) {
             StrList* newNode = StrList_alloc();
@@ -265,12 +269,13 @@ int StrList_count(StrList* strList, const char* data) {
 /*
 	Given a string and a list, remove all the appearences of this string in the list.
 */
-void StrList_remove(StrList* strList, const char* data) {      
+void StrList_remove(StrList* strList, const char* data) {  
+    StrList* head = strList;    
     StrList* prev = NULL;
     if (data != NULL) {
         while (strList != NULL) {        
             if (strcmp(strList->data, data) == 0) {
-                removeNode(&prev, &strList);                
+                removeNode(&prev, &strList, StrList_size(head));                
                 if (strList->data == NULL) {
                     // this is the indication the linked list is empty
                     return;
@@ -281,7 +286,7 @@ void StrList_remove(StrList* strList, const char* data) {
         }
         // special case: strList={"aa","aa"}, data="aa"
         if (prev != NULL && strcmp(prev->data, data) == 0) {
-            removeNode(&prev, &prev);
+            removeNode(&prev, &prev, StrList_size(head));
         }
     }
 }
@@ -302,7 +307,7 @@ void StrList_removeAt(StrList* strList, int index) {
 
     while (strList != NULL) {
         if (index == count) {
-            removeNode(&prev, &strList);            
+            removeNode(&prev, &strList, size);            
             break;
         }
         prev = strList;
@@ -362,6 +367,7 @@ void StrList_reverse(StrList* strList) {
     }
     // create a new list with reverted order.
     StrList* newList = StrList_alloc();
+    StrList* newListHead = newList;
     while (strList != NULL) {
         StrList_insertAt(newList, strList->data, 0);
         strList = strList->next;
@@ -377,7 +383,7 @@ void StrList_reverse(StrList* strList) {
         newList = newList->next;
     }
     // free the new list memory.
-    freeTheWholeList(newList);
+    freeTheWholeList(newListHead);
 }
 
 /*
@@ -396,14 +402,15 @@ void StrList_sort(StrList* strList) {
 
     // create a new list and insert values in a sorted manner by ascending order.
     StrList* newList = StrList_alloc();
-    
+    StrList* newListHead = newList;
+
     while (cloned != NULL && cloned->data != NULL) {
         char* minValue = getMinimumOfStrList(cloned);
         StrList_insertLast(newList, minValue);
         free(minValue);
     }
-    StrList_free(cloned);
-    
+    StrList_free(cloned);    
+
     // copy values from one list to another.
     // Iterate over both lists simultaneously
     while (strList != NULL && newList != NULL) {
@@ -414,7 +421,7 @@ void StrList_sort(StrList* strList) {
         newList = newList->next;
     }
     // free the new list memory.
-    freeTheWholeList(newList);
+    freeTheWholeList(newListHead);
 }
 
 /*
