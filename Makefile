@@ -4,7 +4,7 @@ CFLAGS = -Wall -g
 all: main
 
 main: Main.o StrList.o
-	$(CC) $(CFLAGS) Main.o StrList.o -o main
+	$(CC) $(CFLAGS) Main.o StrList.o -o StrList
 
 Main.o: Main.c 
 	gcc $(CFLAGS) -c Main.c
