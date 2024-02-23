@@ -207,11 +207,14 @@ char* StrList_firstData(const StrList* StrList) {
 void StrList_print(const StrList* strList) {
     if (strList != NULL) {
         // go to the last node.
-        while (strList != NULL) {
+        while (strList != NULL && strList->next != NULL) {
             if (strList->data != NULL) {
-                printf("%s\n", strList->data);
+                printf("%s ", strList->data);
             }
             strList = strList->next;            
+        }
+        if (strList != NULL && strList->next == NULL) {
+            printf("%s\n", strList->data);
         }
     }
 }

@@ -17,6 +17,18 @@ void freeList(StrList* strList) {
     }
 }
 
+char* getStringFromStdin()
+{
+    char word[MAX_STRING_SIZE];
+    char* retValue = fgets(word, MAX_STRING_SIZE, stdin);
+    if (retValue != NULL)
+    { 
+        // Remove the newline character if it's read by fgets
+        retValue[strcspn(retValue, "\n")] = 0;
+    }
+    return retValue;
+}
+
 void populateStringList(StrList** strListPtr) {
     StrList* strList = *strListPtr;
     // deallocate the string list.
@@ -24,62 +36,58 @@ void populateStringList(StrList** strListPtr) {
      
     strList = StrList_alloc();                
     *strListPtr = strList;
-
-    int numOfWords;
-    scanf(" %d", &numOfWords);    
-
-    // Dynamically allocate a buffer for the input line
-    // char *line = NULL;
-    // size_t bufsize = 0;
-    // getline(&line, &bufsize, stdin); // Read the entire line of words
-
-    // const char *delimiters = " \n"; // Delimiter for tokenization
-    // // Use strtok to find the first token
-    // char *token = strtok(line, delimiters);        
-
-    // int count = 0;
-    // while (token != NULL && count < numOfWords) {                            
-    //     StrList_insertLast(strList, token);	// add the current token to the list 				  
-    //     token = strtok(NULL, delimiters); // Get the next token        
-    //     count++;
-    // }
-    // free(line);
-    int count = 0;
-    while (count < numOfWords) {
-        char word[MAX_STRING_SIZE];                            
-        scanf("%1023s", word);
-        StrList_insertLast(strList, word);					          
-        count++;
+    
+    // read the number of words from stdin
+    char* retValue = getStringFromStdin();
+    if (retValue == NULL) {
+        return; // EOF reached
     }
+    int numOfWords = atoi(retValue);
+    
+    // read the line of words
+    retValue = getStringFromStdin();
+    if (retValue == NULL) {
+        return; // EOF reached
+    }
+
+    const char *delimiters = " \n"; // Delimiter for tokenization
+    // Use strtok to find the first token
+    char *token = strtok(retValue, delimiters);        
+
+    int count = 0;
+    while (token != NULL && count < numOfWords) {                            
+        StrList_insertLast(strList, token);	// add the current token to the list 				  
+        token = strtok(NULL, delimiters); // Get the next token        
+        count++;
+    }        
 }
 
 void putStringAtIndex(StrList* strList) {
     if (strList != NULL) {
-        int index;
-        scanf(" %d", &index);
+        char* retValue = getStringFromStdin();
+        int index = atoi(retValue);        
         
-        char word[MAX_STRING_SIZE];                            
-        scanf("%1023s", word);
+        retValue = getStringFromStdin();
 
-        StrList_insertAt(strList, word, index);    
+        StrList_insertAt(strList, retValue, index);    
     }
 }
 
 int main() {
-    int command;    
+    long command;    
     StrList* strList = NULL;
-    char word[MAX_STRING_SIZE];
     int index;
+    char* retValue;
 
-    while (1) {
-        // printf("Enter command in the range [0,13]: ");
-        int retValue = scanf(" %d", &command); // Note the space before %c to consume any newline characters left in the input buffer
-        if (retValue == EOF) {
-            if (strList != NULL) {
-                freeList(strList);
-            }
+    while (1) {        
+        retValue = getStringFromStdin();        
+        if (retValue == NULL) {
+            freeList(strList);
             return 0;
         }
+        
+        command = atoi(retValue);
+
         switch (command) {
             case 0:
                 if (strList != NULL) {
@@ -98,27 +106,29 @@ int main() {
             case 4:
                 printf("%ld\n", StrList_size(strList));                
                 break;
-            case 5:                
-                scanf(" %d", &index);
+            case 5:                                
+                retValue = getStringFromStdin();
+                index = atoi(retValue);
                 StrList_printAt(strList, index);                
                 break;
             case 6:       
                 printf("%d\n", StrList_printLen(strList));         
                 break;
             case 7:                                            
-                scanf("%1023s", word);
-                printf("%d\n", StrList_count(strList, word));                                      
+                retValue = getStringFromStdin();
+                printf("%d\n", StrList_count(strList, retValue));                                      
                 break;
             case 8:                
-                scanf("%1023s", word);
-                StrList_remove(strList, word);
+                retValue = getStringFromStdin();
+                StrList_remove(strList, retValue);
                 if (StrList_size(strList) == 0) {
                     StrList_free(strList);
                     strList = NULL;
                 }                                                     
                 break;
             case 9:                
-                scanf(" %d", &index);
+                retValue = getStringFromStdin();
+                index = atoi(retValue);
                 StrList_removeAt(strList, index);
                 if (StrList_size(strList) == 0) {
                     StrList_free(strList);
@@ -138,13 +148,14 @@ int main() {
             case 13:
                 int sorted = StrList_isSorted(strList);
                 if (sorted == 1) {
-                    printf("Sorted.\n");
+                    printf("true\n");
                 } else {
-                    printf("Not sorted.\n");
+                    printf("false\n");
                 }              
                 break;                            
             default:                
                 printf("Invalid command.\n");
         }
     }
+    return 0;
 }
