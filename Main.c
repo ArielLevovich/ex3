@@ -101,7 +101,10 @@ int main() {
                 putStringAtIndex(strList);             
                 break;
             case 3:  
-                StrList_print(strList);              
+                StrList_print(strList);
+                if(strList == NULL){
+                    printf("\n");
+                }
                 break;
             case 4:
                 printf("%ld\n", StrList_size(strList));                
